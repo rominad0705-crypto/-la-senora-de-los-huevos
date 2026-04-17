@@ -37,13 +37,15 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="fixed top-4 left-4 z-50 lg:hidden bg-amber-600 text-white p-2 rounded-lg shadow-lg"
-      >
-        {open ? <X size={24} /> : <Menu size={24} />}
-      </button>
+      {/* Mobile toggle - open button */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          className="fixed top-4 left-4 z-50 lg:hidden bg-amber-600 text-white p-2 rounded-lg shadow-lg"
+        >
+          <Menu size={24} />
+        </button>
+      )}
 
       {/* Overlay */}
       {open && (
@@ -60,10 +62,13 @@ export default function Sidebar() {
       >
         <div className="p-4 border-b border-amber-800 flex items-center gap-3">
           <Image src="/logo.jpg" alt="Logo" width={48} height={48} className="rounded-full" />
-          <div>
+          <div className="flex-1">
             <h1 className="text-lg font-bold leading-tight">La Señora</h1>
             <p className="text-amber-300 text-sm">de los Huevos</p>
           </div>
+          <button onClick={() => setOpen(false)} className="lg:hidden text-amber-300 hover:text-white">
+            <X size={24} />
+          </button>
         </div>
         <nav className="p-4 space-y-1">
           {navItems.map((item) => {
