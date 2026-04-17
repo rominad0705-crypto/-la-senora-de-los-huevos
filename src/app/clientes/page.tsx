@@ -154,47 +154,36 @@ export default function ClientesPage() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600">
-                <tr>
-                  <th className="text-left px-4 py-3 font-medium">Nombre</th>
-                  <th className="text-left px-4 py-3 font-medium">Tipo</th>
-                  <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">Teléfono</th>
-                  <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Zona</th>
-                  <th className="text-right px-4 py-3 font-medium">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {filtered.map(client => (
-                  <tr key={client.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium">{client.name}</td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${client.type === 'negocio' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
-                        {client.type === 'negocio' ? 'Negocio' : 'Particular'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 hidden sm:table-cell">{client.phone}</td>
-                    <td className="px-4 py-3 hidden md:table-cell">{client.zone}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-2">
-                        <button onClick={() => openEdit(client)} className="text-gray-400 hover:text-amber-600">
-                          <Pencil size={16} />
-                        </button>
-                        <button onClick={() => handleDelete(client.id)} className="text-gray-400 hover:text-red-600">
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">No se encontraron clientes</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+        <div className="space-y-3">
+          {filtered.map(client => (
+            <div key={client.id} className="bg-white rounded-xl shadow-sm border p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-gray-900">{client.name}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${client.type === 'negocio' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
+                      {client.type === 'negocio' ? 'Negocio' : 'Particular'}
+                    </span>
+                  </div>
+                  {client.phone && <p className="text-sm text-gray-600">Tel: {client.phone}</p>}
+                  {client.address && <p className="text-sm text-gray-600">Dir: {client.address}</p>}
+                  {client.zone && <p className="text-sm text-gray-600">Zona: {client.zone}</p>}
+                  {client.notes && <p className="text-sm text-gray-400 mt-1">{client.notes}</p>}
+                </div>
+                <div className="flex gap-3 ml-2">
+                  <button onClick={() => openEdit(client)} className="text-gray-400 hover:text-amber-600">
+                    <Pencil size={18} />
+                  </button>
+                  <button onClick={() => handleDelete(client.id)} className="text-gray-400 hover:text-red-600">
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+          {filtered.length === 0 && (
+            <div className="text-center py-12 text-gray-400">No se encontraron clientes</div>
+          )}
         </div>
       )}
     </div>
