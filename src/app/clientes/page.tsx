@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Client, ClientType } from '@/lib/types'
 import PageHeader from '@/components/PageHeader'
-import Modal from '@/components/Modal'
-import { Plus, Pencil, Trash2, Search } from 'lucide-react'
+import { Plus, Pencil, Trash2, Search, ArrowLeft } from 'lucide-react'
 
 const emptyClient = { name: '', phone: '', address: '', zone: '', type: 'particular' as ClientType, notes: '' }
 
@@ -13,9 +12,10 @@ export default function ClientesPage() {
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [modalOpen, setModalOpen] = useState(false)
+  const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Client | null>(null)
   const [form, setForm] = useState(emptyClient)
+  const [saving, setSaving] = useState(false)
 
   async function loadClients() {
     const { data } = await supabase.from('clients').select('*').order('name')
@@ -28,31 +28,40 @@ export default function ClientesPage() {
   function openNew() {
     setEditing(null)
     setForm(emptyClient)
-    setModalOpen(true)
+    setShowForm(true)
   }
 
   function openEdit(client: Client) {
     setEditing(client)
     setForm({ name: client.name, phone: client.phone, address: client.address, zone: client.zone, type: client.type, notes: client.notes })
-    setModalOpen(true)
+    setShowForm(true)
   }
 
   async function handleSave() {
     if (!form.name.trim()) return alert('El nombre es obligatorio')
-    let error
-    if (editing) {
-      const res = await supabase.from('clients').update(form).eq('id', editing.id)
-      error = res.error
-    } else {
-      const res = await supabase.from('clients').insert(form)
-      error = res.error
+    setSaving(true)
+    try {
+      let error
+      if (editing) {
+        const res = await supabase.from('clients').update(form).eq('id', editing.id)
+        error = res.error
+      } else {
+        const res = await supabase.from('clients').insert(form)
+        error = res.error
+      }
+      if (error) {
+        alert('Error al guardar: ' + error.message)
+        setSaving(false)
+        return
+      }
+      setShowForm(false)
+      setForm(emptyClient)
+      setEditing(null)
+      loadClients()
+    } catch (err: any) {
+      alert('Error de conexión: ' + (err?.message || 'Revisá tu internet'))
     }
-    if (error) {
-      alert('Error al guardar: ' + error.message)
-      return
-    }
-    setModalOpen(false)
-    loadClients()
+    setSaving(false)
   }
 
   async function handleDelete(id: string) {
@@ -65,6 +74,57 @@ export default function ClientesPage() {
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.zone.toLowerCase().includes(search.toLowerCase())
   )
+
+  // Show form page instead of modal
+  if (showForm) {
+    return (
+      <div>
+        <button onClick={() => setShowForm(false)} className="flex items-center gap-2 text-amber-700 mb-4">
+          <ArrowLeft size={18} /> Volver
+        </button>
+        <h2 className="text-xl font-bold mb-4">{editing ? 'Editar Cliente' : 'Nuevo Cliente'}</h2>
+        <div className="bg-white rounded-xl shadow-sm border p-4 space-y-4 max-w-lg">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+            <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
+              className="w-full border rounded-lg px-3 py-3 text-base focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+            <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as ClientType })}
+              className="w-full border rounded-lg px-3 py-3 text-base focus:ring-2 focus:ring-amber-500">
+              <option value="particular">Particular</option>
+              <option value="negocio">Negocio</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+            <input type="tel" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
+              className="w-full border rounded-lg px-3 py-3 text-base focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+            <input type="text" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })}
+              className="w-full border rounded-lg px-3 py-3 text-base focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Zona</label>
+            <input type="text" value={form.zone} onChange={e => setForm({ ...form, zone: e.target.value })}
+              className="w-full border rounded-lg px-3 py-3 text-base focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+            <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })}
+              className="w-full border rounded-lg px-3 py-3 text-base focus:ring-2 focus:ring-amber-500" rows={2} />
+          </div>
+          <button onClick={handleSave} disabled={saving}
+            className="w-full bg-amber-600 text-white py-3 rounded-lg hover:bg-amber-700 font-medium text-base disabled:opacity-50">
+            {saving ? 'Guardando...' : editing ? 'Guardar Cambios' : 'Crear Cliente'}
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -137,48 +197,6 @@ export default function ClientesPage() {
           </div>
         </div>
       )}
-
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Editar Cliente' : 'Nuevo Cliente'}>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-            <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-            <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as ClientType })}
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500">
-              <option value="particular">Particular</option>
-              <option value="negocio">Negocio</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-            <input type="text" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-            <input type="text" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Zona</label>
-            <input type="text" value={form.zone} onChange={e => setForm({ ...form, zone: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
-            <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500" rows={2} />
-          </div>
-          <button onClick={handleSave}
-            className="w-full bg-amber-600 text-white py-2 rounded-lg hover:bg-amber-700 transition-colors font-medium">
-            {editing ? 'Guardar Cambios' : 'Crear Cliente'}
-          </button>
-        </div>
-      </Modal>
     </div>
   )
 }
