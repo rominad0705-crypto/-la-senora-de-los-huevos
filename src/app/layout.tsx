@@ -11,6 +11,11 @@ const geist = Geist({
 export const metadata: Metadata = {
   title: "La Señora de los Huevos",
   description: "Gestión de ventas de huevos de campo",
+  icons: {
+    icon: "/logo.jpg",
+    apple: "/logo.jpg",
+  },
+  manifest: "/manifest.json",
 }
 
 export default function RootLayout({

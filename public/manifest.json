@@ -1,0 +1,16 @@
+{
+  "name": "La Señora de los Huevos",
+  "short_name": "Sra. Huevos",
+  "description": "Gestión de ventas de huevos de campo",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffbeb",
+  "theme_color": "#92400e",
+  "icons": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

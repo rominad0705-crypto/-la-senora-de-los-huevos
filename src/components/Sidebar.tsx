@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   Users,
@@ -57,9 +58,12 @@ export default function Sidebar() {
         className={`fixed top-0 left-0 z-40 h-full w-64 bg-amber-900 text-white transform transition-transform duration-200 ease-in-out
           ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:z-auto`}
       >
-        <div className="p-6 border-b border-amber-800">
-          <h1 className="text-xl font-bold">La Señora</h1>
-          <p className="text-amber-300 text-sm">de los Huevos</p>
+        <div className="p-4 border-b border-amber-800 flex items-center gap-3">
+          <Image src="/logo.jpg" alt="Logo" width={48} height={48} className="rounded-full" />
+          <div>
+            <h1 className="text-lg font-bold leading-tight">La Señora</h1>
+            <p className="text-amber-300 text-sm">de los Huevos</p>
+          </div>
         </div>
         <nav className="p-4 space-y-1">
           {navItems.map((item) => {
