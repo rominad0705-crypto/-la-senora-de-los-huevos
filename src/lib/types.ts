@@ -56,13 +56,14 @@ export interface DailyProduction {
   notes: string
 }
 
-export interface StockEntry {
-  id: string
-  date: string
-  medium_stock: number
-  large_stock: number
-  xl_stock: number
-  notes: string
+export interface StockActual {
+  categoria: 'medianos' | 'grandes' | 'xl'
+  maple_size: number
+  huevos_stock_real: number
+  huevos_stock_disponible: number
+  maples_stock_real: number
+  maples_stock_disponible: number
+  huevos_sueltos: number
 }
 
 export interface Investment {
